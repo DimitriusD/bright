@@ -5,14 +5,7 @@ import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 @Getter @Setter
-public class EventDTO {
+public class EventDTO extends BaseDTO {
 
-    private String name;
-
-    private String location;
-
-    private String description;
-
-    private MultipartFile placeImage;
 
 }

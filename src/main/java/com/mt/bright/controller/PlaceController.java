@@ -4,13 +4,10 @@ package com.mt.bright.controller;
 import com.mt.bright.dao.PlaceRepository;
 import com.mt.bright.dto.PlaceDTO;
 import com.mt.bright.entity.Place;
+import com.mt.bright.mapper.PlaceMapper;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
-import java.io.IOException;
 import java.util.Objects;
 import java.util.Optional;
 
@@ -21,8 +18,17 @@ public class PlaceController {
     @Autowired
     private PlaceRepository placeRepository;
 
+    @Autowired
+    private PlaceMapper placeMapper;
+
     @PostMapping()
     public Place create(@ModelAttribute PlaceDTO placeDTO){
+
+        Place place = placeMapper.toEntity(placeDTO);
+
+        if(Objects.nonNull(place)){
+           return placeRepository.save(place);
+        }
         return null;
     }
 
@@ -34,17 +40,15 @@ public class PlaceController {
     }
 
     @PutMapping("/{id}")
-    public void update(@RequestBody Place newPlace, @PathVariable Long id){
+    public void update(@RequestBody PlaceDTO placeDTO, @PathVariable Long id){
         placeRepository.findById(id)
-                .map(place -> {
-                    place.setLocation(newPlace.getLocation());
-                    place.setName(newPlace.getName());
-                    place.setPlaceType(newPlace.getPlaceType());
-                    return placeRepository.save(place);
+                .map((place) -> {
+                    Place updatedPlace = placeMapper.toEntity(placeDTO);
+                    return placeRepository.save(updatedPlace);
                 })
                 .orElseGet(() ->
                         {
-                            newPlace.setId(id);
+                            Place newPlace = placeMapper.toEntity(placeDTO);
                             return placeRepository.save(newPlace);
                         }
                 );
