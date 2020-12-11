@@ -8,11 +8,13 @@ import com.mt.bright.mapper.PlaceMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
 @RestController()
-@RequestMapping("/place")
+@RequestMapping("/places")
 public class PlaceController {
 
     @Autowired
@@ -21,23 +23,39 @@ public class PlaceController {
     @Autowired
     private PlaceMapper placeMapper;
 
+    @GetMapping()
+    public List<PlaceDTO> readAll(){
+        List<PlaceDTO> placeDTO = new ArrayList<>();
+        Iterable<Place> places = placeRepository.findAll();
+        if(Objects.nonNull(places)){
+            places.forEach(place -> {
+                placeDTO.add(placeMapper.toDto(place));
+            });
+        }
+        return placeDTO;
+
+    }
+
+    @GetMapping("/{id}")
+    public PlaceDTO readById(@PathVariable Long id){
+        Optional<Place> placeById = placeRepository.findById(id);
+        return placeById.map(place -> placeMapper.toDto(place)).orElse(null);
+
+    }
+
     @PostMapping()
-    public Place create(@ModelAttribute PlaceDTO placeDTO){
+    public PlaceDTO create(@ModelAttribute PlaceDTO placeDTO){
 
         Place place = placeMapper.toEntity(placeDTO);
 
         if(Objects.nonNull(place)){
-           return placeRepository.save(place);
+            Place save = placeRepository.save(place);
+            placeDTO.setId(save.getId());
+            return placeDTO;
         }
         return null;
     }
 
-    @GetMapping("/{id}")
-    public Place readById(@PathVariable Long id){
-        Optional<Place> placeById = placeRepository.findById(id);
-        return placeById.orElse(null);
-
-    }
 
     @PutMapping("/{id}")
     public void update(@RequestBody PlaceDTO placeDTO, @PathVariable Long id){

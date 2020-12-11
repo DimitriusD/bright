@@ -7,6 +7,8 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter @Setter
 public abstract class BaseDTO {
 
+    private long id;
+
     private String name;
 
     private String location;
