@@ -4,6 +4,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Getter @Setter
 public abstract class BaseDTO {
 
@@ -15,5 +18,6 @@ public abstract class BaseDTO {
 
     private String description;
 
-    private MultipartFile placeImage;
+    private List<byte[]> images = new ArrayList<>();
+
 }

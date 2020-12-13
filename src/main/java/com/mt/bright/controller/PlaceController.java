@@ -6,7 +6,9 @@ import com.mt.bright.dto.PlaceDTO;
 import com.mt.bright.entity.Place;
 import com.mt.bright.mapper.PlaceMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -25,15 +27,14 @@ public class PlaceController {
 
     @GetMapping()
     public List<PlaceDTO> readAll(){
-        List<PlaceDTO> placeDTO = new ArrayList<>();
+        List<PlaceDTO> placesDTO = new ArrayList<>();
         Iterable<Place> places = placeRepository.findAll();
         if(Objects.nonNull(places)){
             places.forEach(place -> {
-                placeDTO.add(placeMapper.toDto(place));
+                placesDTO.add(placeMapper.toDto(place));
             });
         }
-        return placeDTO;
-
+        return placesDTO;
     }
 
     @GetMapping("/{id}")
@@ -43,10 +44,10 @@ public class PlaceController {
 
     }
 
-    @PostMapping()
-    public PlaceDTO create(@ModelAttribute PlaceDTO placeDTO){
+    @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
+    public PlaceDTO create(@ModelAttribute PlaceDTO placeDTO, @RequestParam("placeImage")List<MultipartFile> images){
 
-        Place place = placeMapper.toEntity(placeDTO);
+        Place place = placeMapper.toEntity(placeDTO, images);
 
         if(Objects.nonNull(place)){
             Place save = placeRepository.save(place);
@@ -76,6 +77,5 @@ public class PlaceController {
     public void delete(@PathVariable Long id){
         placeRepository.deleteById(id);
     }
-
 
 }
