@@ -17,9 +17,7 @@ public class Place extends BaseEntity{
     @Enumerated(value = EnumType.STRING)
     private PlaceType placeType;
 
-    @ElementCollection(fetch = FetchType.EAGER)
-    @Lob
-    private List<byte[]> images = new ArrayList<>();
+
 
 
 }

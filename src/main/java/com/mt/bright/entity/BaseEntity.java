@@ -3,10 +3,9 @@ package com.mt.bright.entity;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.MappedSuperclass;
+import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @MappedSuperclass
 @Getter @Setter
@@ -21,4 +20,11 @@ public abstract class BaseEntity {
     private String location;
 
     private String description;
+
+    @OneToOne
+    private Rating rating;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @Lob
+    private List<byte[]> images = new ArrayList<>();
 }
