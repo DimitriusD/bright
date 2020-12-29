@@ -9,7 +9,7 @@ import java.util.List;
 
 @Entity
 @Getter @Setter
-public class UserProfile {
+public class User {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
@@ -20,6 +20,10 @@ public class UserProfile {
     private String surname;
 
     private Integer age;
+
+    private String phone;
+
+    private String pass;
 
     @ElementCollection
     private List<String> interest = new ArrayList<>();
