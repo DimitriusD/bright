@@ -1,30 +1,43 @@
 package com.mt.bright.service;
 
+import com.mt.bright.dao.RoleRepository;
 import com.mt.bright.dao.UserRepository;
 import com.mt.bright.dto.UserDTO;
 import com.mt.bright.entity.User;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.Objects;
-import java.util.Optional;
 
 @Service
 public class UserService {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
     private ModelMapper modelMapper;
 
-    public User registerNewUser(UserDTO user){
-        if(Objects.nonNull(user) && Objects.nonNull(user.getPhone())){
-            User existedUser = userRepository.findByPhone(user.getPhone());
-            return Objects.isNull(existedUser)
-                    ? userRepository.save(modelMapper.map(user, User.class))
-                    : existedUser;
+    private UserRepository userRepository;
+
+    private RoleRepository roleRepository;
+
+    private PasswordEncoder passwordEncoder;
+
+    public User registerNewUser(UserDTO userDTO){
+        if(Objects.nonNull(userDTO) && Objects.nonNull(userDTO.getPhone())){
+
+            User existedUser = userRepository.findByPhone(userDTO.getPhone());
+
+            if(Objects.isNull(existedUser)){
+                User user = modelMapper.map(userDTO, User.class);
+                user.setPass(passwordEncoder.encode(userDTO.getPass()));
+                user.setRoles(Arrays.asList(roleRepository.findByName("ROLE_USER")));
+                return userRepository.save(user);
+            }
+
+            return existedUser;
         }
         return null;
     }
@@ -37,15 +50,11 @@ public class UserService {
     }
 
     public User getById(Long id){
-        Optional<User> userProfile = userRepository.findById(id);
-        return userProfile.orElse(null);
-
+        return userRepository.findById(id).orElse(null);
     }
 
     public User getByPhone(String phone){
-        User user = userRepository.findByPhone(phone);
-        return user;
-
+        return userRepository.findByPhone(phone);
     }
 
     public void update(UserDTO updateProfile){
@@ -65,5 +74,23 @@ public class UserService {
         userRepository.deleteById(id);
     }
 
+    @Autowired
+    public void setRoleRepository(RoleRepository roleRepository) {
+        this.roleRepository = roleRepository;
+    }
 
+    @Autowired
+    public void setModelMapper(ModelMapper modelMapper) {
+        this.modelMapper = modelMapper;
+    }
+
+    @Autowired
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    @Autowired
+    public void setPasswordEncoder(PasswordEncoder passwordEncoder) {
+        this.passwordEncoder = passwordEncoder;
+    }
 }

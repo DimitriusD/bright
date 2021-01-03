@@ -5,9 +5,10 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
-@Entity
+@Entity(name = "user_profile")
 @Getter @Setter
 public class User {
 
@@ -27,4 +28,14 @@ public class User {
 
     @ElementCollection
     private List<String> interest = new ArrayList<>();
+
+
+    @ManyToMany
+    @JoinTable(
+            name = "users_roles",
+            joinColumns = @JoinColumn(
+                    name = "user_id", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(
+                    name = "role_id", referencedColumnName = "id"))
+    private Collection<Role> roles;
 }

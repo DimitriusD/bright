@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/user")
 public class UserController {
 
-    @Autowired
     private UserService userService;
 
     @PostMapping("/registration")
@@ -26,7 +25,6 @@ public class UserController {
     @GetMapping("/{id}")
     public User getById(@PathVariable Long id){
         return userService.getById(id);
-
     }
 
     @PutMapping("/{id}")
@@ -38,4 +36,10 @@ public class UserController {
     public void delete(@PathVariable Long id){
         userService.delete(id);
     }
+
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
+    }
+
 }
