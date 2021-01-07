@@ -1,5 +1,6 @@
 package com.mt.bright.configuration;
 
+import com.mt.bright.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -18,8 +19,7 @@ import javax.sql.DataSource;
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    @Autowired
-    private DataSource dataSource;
+    private UserService userService;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -28,10 +28,7 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        auth
-                .jdbcAuthentication()
-                .dataSource(dataSource)
-                .passwordEncoder(passwordEncoder());
+        auth.userDetailsService(userService);
     }
 
     @Override
@@ -48,7 +45,16 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
                     .permitAll()
                 .antMatchers(HttpMethod.POST, "/places", "/event")
                     .access("hasRole('ROLE_ADMIN') or hasRole('ROLE_CREATOR')")
-                .anyRequest().authenticated();
+                .anyRequest().authenticated()
+                .and()
+                .httpBasic()
+                .and()
+                .sessionManagement().disable();
+    }
+
+    @Autowired
+    public void setUserService(UserService userService) {
+        this.userService = userService;
     }
 
 }

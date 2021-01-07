@@ -1,7 +1,7 @@
 package com.mt.bright.controller;
 
 import com.mt.bright.dto.UserDTO;
-import com.mt.bright.entity.User;
+import com.mt.bright.entity.Users;
 import com.mt.bright.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -13,17 +13,17 @@ public class UserController {
     private UserService userService;
 
     @PostMapping("/registration")
-    public User registration (@RequestBody UserDTO user){
+    public Users registration (@RequestBody UserDTO user){
         return userService.registerNewUser(user);
     }
 
     @PostMapping("/login")
-    public User login (@RequestBody UserDTO user){
+    public Users login (@RequestBody UserDTO user){
         return userService.login(user);
     }
 
     @GetMapping("/{id}")
-    public User getById(@PathVariable Long id){
+    public Users getById(@PathVariable Long id){
         return userService.getById(id);
     }
 

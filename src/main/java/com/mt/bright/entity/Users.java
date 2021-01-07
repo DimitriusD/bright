@@ -10,13 +10,13 @@ import java.util.List;
 
 @Entity(name = "user_profile")
 @Getter @Setter
-public class User {
+public class Users {
 
     @Id
     @GeneratedValue(strategy = GenerationType.SEQUENCE)
     private long id;
 
-    private String name;
+    private String username;
 
     private String surname;
 

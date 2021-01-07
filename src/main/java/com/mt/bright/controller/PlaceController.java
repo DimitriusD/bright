@@ -19,11 +19,9 @@ import java.util.Optional;
 @RequestMapping("/places")
 public class PlaceController {
 
-    @Autowired
-    private PlaceRepository placeRepository;
-
-    @Autowired
     private PlaceMapper placeMapper;
+
+    private PlaceRepository placeRepository;
 
     @GetMapping()
     public List<PlaceDTO> readAll(){
@@ -41,7 +39,6 @@ public class PlaceController {
     public PlaceDTO readById(@PathVariable Long id){
         Optional<Place> placeById = placeRepository.findById(id);
         return placeById.map(place -> placeMapper.toDto(place)).orElse(null);
-
     }
 
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE, MediaType.MULTIPART_FORM_DATA_VALUE })
@@ -56,7 +53,6 @@ public class PlaceController {
         }
         return null;
     }
-
 
     @PutMapping("/{id}")
     public void update(@RequestBody PlaceDTO placeDTO, @PathVariable Long id){
@@ -78,4 +74,13 @@ public class PlaceController {
         placeRepository.deleteById(id);
     }
 
+    @Autowired
+    public void setPlaceRepository(PlaceRepository placeRepository) {
+        this.placeRepository = placeRepository;
+    }
+
+    @Autowired
+    public void setPlaceMapper(PlaceMapper placeMapper) {
+        this.placeMapper = placeMapper;
+    }
 }
