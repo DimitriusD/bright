@@ -2,7 +2,8 @@ package com.mt.bright.service;
 
 import com.mt.bright.dao.RoleRepository;
 import com.mt.bright.dao.UserRepository;
-import com.mt.bright.dto.UserDTO;
+import com.mt.bright.dto.UserRequestDTO;
+import com.mt.bright.dto.UserResponseDTO;
 import com.mt.bright.entity.Users;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,39 +28,62 @@ public class UserService implements UserDetailsService {
 
     private PasswordEncoder passwordEncoder;
 
-    public Users registerNewUser(UserDTO userDTO){
-        if(Objects.nonNull(userDTO) && Objects.nonNull(userDTO.getPhone())){
+    public UserResponseDTO registerNewUser(UserRequestDTO userRequestDTO){
+        Users user;
 
-            Users existedUsers = userRepository.findByPhone(userDTO.getPhone());
-
-            if(Objects.isNull(existedUsers)){
-                Users users = modelMapper.map(userDTO, Users.class);
-                users.setPass(passwordEncoder.encode(userDTO.getPass()));
-                users.setRoles(Arrays.asList(roleRepository.findByName("ROLE_USER")));
-                return userRepository.save(users);
-            }
-
-            return existedUsers;
+        if(Objects.isNull(userRequestDTO) || Objects.isNull(userRequestDTO.getPhone())){
+            throw new IllegalArgumentException();
         }
-        return null;
+
+        user = userRepository.findByPhone(userRequestDTO.getPhone());
+
+        if(Objects.isNull(user)){
+                user = modelMapper.map(userRequestDTO, Users.class);
+                user.setPassword(passwordEncoder.encode(userRequestDTO.getPassword()));
+                user.setRoles(Arrays.asList(roleRepository.findByName("ROLE_USER")));
+                userRepository.save(user);
+        }
+
+        return UserResponseDTO.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .surname(user.getSurname())
+                .phone(user.getPhone())
+                .age(user.getAge())
+                .build();
     }
 
-    public Users login(UserDTO user){
-        if(Objects.nonNull(user) && Objects.nonNull(user.getPhone())){
-            return userRepository.findByPhoneAndPass(user.getPhone(), user.getPass());
+    public UserResponseDTO login(UserRequestDTO userRequestDTO){
+
+        if(Objects.isNull(userRequestDTO) && Objects.isNull(userRequestDTO.getPhone())){
+            throw new IllegalArgumentException();
         }
-        return null;
+
+        Users user = userRepository.findByPhone(userRequestDTO.getPhone());
+
+        if(Objects.isNull(user) && passwordEncoder.matches(userRequestDTO.getPassword(), user.getPassword())){
+            throw new RuntimeException("Credential is invalid");
+        }
+
+        return UserResponseDTO.builder()
+                .id(user.getId())
+                .username(user.getUsername())
+                .surname(user.getSurname())
+                .phone(user.getPhone())
+                .age(user.getAge())
+                .password(userRequestDTO.getPassword())
+                .build();
     }
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        Users users = userRepository.findByUsername(username);
+    public UserDetails loadUserByUsername(String phone) throws UsernameNotFoundException {
+        Users users = userRepository.findByPhone(phone);
         if(Objects.isNull(users)){
             throw new UsernameNotFoundException("User not found");
         }
 
         List<SimpleGrantedAuthority> authorities = Arrays.asList(new SimpleGrantedAuthority("user"));
-        return new User(users.getUsername(), users.getPass(), authorities);
+        return new User(users.getPhone(), users.getPassword(), authorities);
     }
 
     public Users getById(Long id){
@@ -70,7 +94,7 @@ public class UserService implements UserDetailsService {
         return userRepository.findByPhone(phone);
     }
 
-    public void update(UserDTO updateProfile){
+    public void update(UserRequestDTO updateProfile){
         userRepository.findById(updateProfile.getId())
                 .map(profile -> {
                     profile.setAge(updateProfile.getAge());

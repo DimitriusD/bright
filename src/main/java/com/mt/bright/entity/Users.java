@@ -24,7 +24,11 @@ public class Users {
 
     private String phone;
 
-    private String pass;
+    private String password;
+
+    private Boolean locked = false;
+
+    private Boolean enabled = false;
 
     @ElementCollection
     private List<String> interest = new ArrayList<>();

@@ -12,7 +12,7 @@ import javax.sql.DataSource;
 import java.sql.Driver;
 
 @Configuration
-public class CommonConfiguration {
+public class ApplicationConfiguration {
 
     @Value("${spring.datasource.driver-class-name}")
     private String driver;
